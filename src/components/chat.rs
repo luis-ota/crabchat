@@ -4,7 +4,8 @@ use dioxus::prelude::*;
 pub fn Chat() -> Element {
     rsx! {
         div {
-            div { id: "chat" }
+            id:"chat",
+            div { id: "main" }
             div {  id: "input"}
         }
     }

@@ -6,8 +6,11 @@ use crate::components::{chat::Chat, nav::Nav};
 pub fn Hero() -> Element {
     rsx! {
         div {
-            Nav{ }
+            id: "hero",
+            Nav{ id: String::from("nav-l") }
             Chat{}
+            Nav{ id: String::from("nav-r") }
+
         }
     }
 }
