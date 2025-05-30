@@ -1,23 +1,24 @@
-mod client;
+use dioxus::prelude::*;
 
-use client::Client;
-use futures_util::{SinkExt, StreamExt};
-use std::sync::Arc;
-use tokio::io::{self, AsyncBufReadExt, BufReader};
-use tokio::sync::Mutex;
-use tokio_tungstenite::tungstenite::protocol::Message;
+use components::Hero;
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = Client::new("0.0.0.0", 8080, "luis", "123").await?;
+mod components;
 
-    client.start_receiver_task().await;
+const FAVICON: Asset = asset!("/assets/favicon.ico");
+const MAIN_CSS: Asset = asset!("/assets/styling/main.css");
 
-    loop {
-        let stdin = BufReader::new(io::stdin());
-        let mut lines = stdin.lines();
-        if let Ok(Some(line)) = lines.next_line().await {
-            client.send(line).await.expect("TODO: panic message");
-        }
+fn main() {
+    dioxus::launch(App);
+}
+
+#[component]
+fn App() -> Element {
+    rsx! {
+
+        document::Link { rel: "icon", href: FAVICON }
+        document::Link { rel: "stylesheet", href: MAIN_CSS }
+
+        Hero {}
+
     }
 }
