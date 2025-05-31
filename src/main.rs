@@ -1,11 +1,12 @@
 use dioxus::prelude::*;
 
-use components::Hero;
+use components::Home;
 
 mod components;
 
 const FAVICON: Asset = asset!("/assets/favicon.ico");
-const CSS: Asset = asset!("/assets/styling/style.css");
+const GLOBALS_CSS: Asset = asset!("/assets/styling/globals.css");
+const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
 
 fn main() {
     dioxus::launch(App);
@@ -16,9 +17,10 @@ fn App() -> Element {
     rsx! {
 
         document::Link { rel: "icon", href: FAVICON }
-        document::Link { rel: "stylesheet", href: CSS }
+        document::Link { rel: "stylesheet", href: GLOBALS_CSS }
+        document::Link { rel: "stylesheet", href: TAILWIND_CSS }
 
-        Hero {}
+        Home {}
 
     }
 }
