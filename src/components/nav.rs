@@ -1,11 +1,11 @@
 use dioxus::prelude::*;
 
 #[component]
-pub fn Nav() -> Element {
+pub fn Nav(class: String) -> Element {
     rsx! {
-            div { 
-                class:"bg-red-200 h-full w-[20%] flex items-center justify-center align-center",
-                "nav"
-            }
+        div {
+            class: format!("bg-red-200 h-full flex items-center justify-center align-center {class}"),
+            "nav"
+        }
     }
 }

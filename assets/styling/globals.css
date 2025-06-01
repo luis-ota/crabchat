@@ -17,3 +17,18 @@ body {
     color: #ffffff;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
+
+.nav-transition {
+  transition: transform 0.5s ease, opacity 0.5s ease, width 0.5s ease;
+  will-change: transform, opacity, width;
+  opacity: 1;
+  width: 20%;
+}
+
+.collapsed{
+  opacity: 0;
+  width: 0 !important;
+  padding: 0;
+  overflow: hidden;
+}
+
