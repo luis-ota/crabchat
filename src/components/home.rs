@@ -1,12 +1,13 @@
-use dioxus::prelude::*;
+use crate::components::Chat;
 use crate::components::Header;
 use crate::components::Nav;
-use crate::components::Chat;
+use crate::components::RoomCard;
+use dioxus::prelude::*;
 
 #[component]
 pub fn Home() -> Element {
     let mut hide_left = use_signal(|| false);
-    let mut hide_right = use_signal(|| false);
+    let mut hide_right = use_signal(|| true);
 
     rsx! {
         div {
@@ -23,18 +24,24 @@ pub fn Home() -> Element {
                             if hide_left() {
                                 "collapsed translate-x-100"
                             } else {
-                                "w-[1/5]"
+                                "w-[30%]"
                             }
-                        )
+                        ),
+
+                        for i in 0..4 {
+                            RoomCard { name: format!("rustloves {:?}", i), users_count: 3, is_locked: false }
+                            }
                     }
+
                 Chat {}
+
                 Nav {
                         class: format_args!(
                             "nav-transition {}",
                             if hide_right() {
                                 "collapsed -translate-x-100"
                             } else {
-                                "w-[1/5]"
+                                "w-[20%]"
                             }
                         )
                     }
