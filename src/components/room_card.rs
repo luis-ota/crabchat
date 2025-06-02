@@ -1,33 +1,39 @@
 use dioxus::prelude::*;
 
 #[component]
-pub fn RoomCard(
-    name: String,
-    users_count: i32,
-    is_locked: bool,
-) -> Element {
+pub fn RoomCard(name: String, users_count: i32, is_locked: bool) -> Element {
     rsx! {
         div {
-            class: "w-[90%] p-1 flex flex-col rounded-md border border-black-100 bg-gray-100",
+            class: "
+                flex flex-row items-center justify-between gap-2
+                p-1
+                focus:border-transparent
+                rounded-md border border-neutral-800
+                bg-[#22262b]
+                text-white font-mono
+                transition duration-300 ease-in-out
+                hover:shadow-wired
+                hover:border-rustOrange
+            ",
+
             div {
-                class: "w-full flex items-center justify-between",
-                div {
-                    class: "flex items-center px-2",
-                    span { class: "mr-1", "👤" }
-                    span { "{users_count}" }
-                }
-                div {
-                    class: "text-gray-500",
-                    if is_locked {
-                        span { class: "text-red-500", "🔒" }
-                    } else {
-                        span { class: "text-green-500", "🔓" }
-                    }
-                }
+                class: "h-full flex gap-1 text-sm text-gray-300",
+                span { "👤" }
+                span { "{users_count}" }
             }
+
             div {
-                class: "flex-grow flex items-center justify-center text-lg font-medium",
+                class: "flex-grow py-2 text-center wired-text autowrap",
                 "{name}"
+            }
+
+            div {
+                class: "h-full flex",
+                if is_locked {
+                    span { class: "text-red-500", "🔒" }
+                } else {
+                    span { class: "text-green-500", "🔓" }
+                }
             }
         }
     }

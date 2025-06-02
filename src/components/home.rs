@@ -3,6 +3,8 @@ use crate::components::Header;
 use crate::components::Nav;
 use crate::components::RoomCard;
 use dioxus::prelude::*;
+use dioxus_free_icons::icons::ld_icons::LdPanelLeft;
+use dioxus_free_icons::icons::ld_icons::LdPanelRight;
 
 #[component]
 pub fn Home() -> Element {
@@ -13,8 +15,8 @@ pub fn Home() -> Element {
         div {
             class: "h-full flex flex-col items-center justify-center align-center",
             Header {
-                on_left_click: move |_| hide_left.toggle(),
-                on_right_click: move |_| hide_right.toggle(),
+                on_button_click: move |_| hide_left.toggle(),
+                opened: hide_left()
             }
             div {
                 class: "flex flex-row w-full h-full",
@@ -24,12 +26,12 @@ pub fn Home() -> Element {
                             if hide_left() {
                                 "collapsed translate-x-100"
                             } else {
-                                "w-[30%]"
+                                "w-[20%]"
                             }
                         ),
 
                         for i in 0..4 {
-                            RoomCard { name: format!("rustloves {:?}", i), users_count: 3, is_locked: false }
+                            RoomCard { name: format!("rustlovers {:?}", i), users_count: 5-1, is_locked: false }
                             }
                     }
 

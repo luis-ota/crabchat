@@ -1,19 +1,34 @@
 use dioxus::prelude::*;
+use dioxus_free_icons::{
+    icons::ld_icons::{LdPanelLeft, LdPanelRight},
+    Icon,
+};
 
 #[component]
-pub fn Header(on_left_click: EventHandler<()>, on_right_click: EventHandler<()>) -> Element {
+pub fn Header(on_button_click: EventHandler<()>, opened: bool) -> Element {
     rsx! {
         div {
-            class: "w-full p-2 flex items-center justify-between align-center",
+            class: "w-full bg-[#22262b] p-4 flex items-center justify-between align-center",
             button {
-                onclick: move |_| on_left_click.call(()),
-                "..."
+                onclick: move |_| on_button_click.call(()),
+                if opened {
+                    Icon {
+                        width: 20,
+                        height: 20,
+                        fill: "white",
+                        icon: LdPanelLeft,
+                    }
+                } else {
+                    Icon {
+                        width: 20,
+                        height: 20,
+                        fill: "white",
+                        icon: LdPanelRight,
+                    }
+                }
             }
-            div { class: "mx-4", "crabchat" }
-            button {
-                onclick: move |_| on_right_click.call(()),
-                "..."
-            }
+            div { class: "mx-4 wired-shadow wired-text", "crabchat" }
+            span{}
         }
     }
 }
