@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 use dioxus_free_icons::{
     Icon,
-    icons::ld_icons::{LdSend, LdSendHorizontal, LdSettings},
+    icons::ld_icons::{LdSendHorizontal, LdSettings},
 };
 
 use crate::infra::models::Room;
@@ -31,11 +31,11 @@ pub fn Chat(room_info: Room, on_button_click: EventHandler<()>, room_info_opened
                     "CHAT"
                 }
                 div {
-                    class: "w-[95%] gap-3 flex flex-row justify-between items-center m-4",
+                    class: "w-full px-3 gap-3 flex flex-row justify-between items-center m-4",
                         input {
                             class: "
                             flex w-full h-full
-                            p-2
+                            p-3
                             rounded-md border-0
                             bg-[#22262b]
                             text-white font-mono wired-text
@@ -46,7 +46,7 @@ pub fn Chat(room_info: Room, on_button_click: EventHandler<()>, room_info_opened
 
                     }
                     button {
-                        class: "bg-[#22262b] p-2 rounded",
+                        class: "h-full bg-[#22262b] p-3 rounded",
                         Icon{
                             width: 20,
                             height: 20,
