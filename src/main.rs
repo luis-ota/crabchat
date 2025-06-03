@@ -3,6 +3,7 @@ use dioxus::prelude::*;
 use components::Home;
 
 mod components;
+mod infra;
 
 const FAVICON: Asset = asset!("/assets/favicon.ico");
 const FIRACODE_FONT: &str = "https://fonts.googleapis.com/css2?family=Fira+Code&display=swap";

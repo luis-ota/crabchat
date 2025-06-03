@@ -1,7 +1,9 @@
 use dioxus::prelude::*;
 
+use crate::infra::models::AvaliableRoom;
+
 #[component]
-pub fn RoomCard(name: String, users_count: i32, is_locked: bool) -> Element {
+pub fn RoomCard(info: AvaliableRoom) -> Element {
     rsx! {
         div {
             class: "
@@ -19,17 +21,17 @@ pub fn RoomCard(name: String, users_count: i32, is_locked: bool) -> Element {
             div {
                 class: "h-full flex gap-1 text-sm text-gray-300",
                 span { "👤" }
-                span { "{users_count}" }
+                span { "{info.users_count}" }
             }
 
             div {
                 class: "flex-grow py-2 text-center wired-text autowrap",
-                "{name}"
+                "{info.info.base_info.name}"
             }
 
             div {
                 class: "h-full flex",
-                if is_locked {
+                if info.has_password {
                     span { class: "text-red-500", "🔒" }
                 } else {
                     span { class: "text-green-500", "🔓" }

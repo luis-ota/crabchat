@@ -4,8 +4,8 @@ use dioxus::prelude::*;
 pub fn Nav(class: String, children: Element) -> Element {
     rsx! {
         div {
-            class: format!("bg-[#37383b] h-full {class}"),
-            div {  class: "h-full p-2 flex flex-col justify-between align-center",
+            class: format!("bg-[#2d3139] h-full {class}"),
+            div {  class: "h-full p-2 py-4 flex flex-col justify-between align-center",
             div {
                 class: "flex flex-col gap-4",
                 input {
@@ -14,7 +14,7 @@ pub fn Nav(class: String, children: Element) -> Element {
                     p-1
                     rounded-md border border-neutral-800
                     bg-[#22262b]
-                    text-white font-mono wired-text
+                    text-white font-mono wired-text outline-none
                     transition duration-300 ease-in-out
                     hover:shadow-wired
                     hover:border-rustOrange",

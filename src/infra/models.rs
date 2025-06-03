@@ -1,8 +1,7 @@
-use std::collections::HashMap;
-
 use crate::infra::enums::{Action, ResType};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 use super::enums::ServerError;
 
@@ -15,13 +14,13 @@ pub trait ToJson {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct User {
     pub name: String,
     pub uuid: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
 pub struct UserMessage {
     pub user: Option<User>,
     pub message: String,
@@ -42,14 +41,14 @@ impl UserMessage {
 
 impl ToJson for UserMessage {}
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
 pub struct BaseRoomInfo {
     pub code: String,
     pub name: String,
     pub created_by: User,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
 pub struct CreateRoom {
     pub base_info: BaseRoomInfo,
     pub password: Option<String>,
@@ -68,18 +67,24 @@ pub struct AccessRoom {
     pub room_code: String,
     pub password: Option<String>,
 }
-impl ToJson for AccessRoom {}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LeaveRoom {
     pub code: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
 pub struct Room {
     pub info: CreateRoom,
     pub messages: Vec<UserMessage>,
     pub users: HashMap<String, User>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AvaliableRoom {
+    pub info: CreateRoom,
+    pub users_count: u64,
+    pub has_password: bool,
 }
 
 impl Room {

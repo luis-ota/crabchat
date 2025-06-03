@@ -5,13 +5,13 @@ use dioxus_free_icons::{
 };
 
 #[component]
-pub fn Header(on_button_click: EventHandler<()>, opened: bool) -> Element {
+pub fn Header(on_button_click: EventHandler<()>, left_sidebar_opened: bool) -> Element {
     rsx! {
         div {
             class: "w-full bg-[#22262b] p-4 flex items-center justify-between align-center",
             button {
                 onclick: move |_| on_button_click.call(()),
-                if opened {
+                if left_sidebar_opened {
                     Icon {
                         width: 20,
                         height: 20,
