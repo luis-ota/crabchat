@@ -10,5 +10,4 @@ pub use nav::Nav;
 mod chat;
 pub use chat::Chat;
 
-mod room_card;
-pub use room_card::RoomCard;
+mod cards;

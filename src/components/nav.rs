@@ -14,7 +14,8 @@ pub fn Nav(class: String, children: Element) -> Element {
                     p-2
                     rounded-md border border-neutral-800
                     bg-[#22262b]
-                    text-white font-mono wired-text outline-none
+                    text-white font-mono wired-text
+                    outline-none
                     transition duration-300 ease-in-out
                     hover:shadow-wired
                     hover:border-rustOrange",

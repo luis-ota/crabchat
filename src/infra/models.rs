@@ -29,13 +29,13 @@ pub struct UserMessage {
 }
 
 impl UserMessage {
-    pub fn new(user: &User, message: &str, room_code: &String) -> Result<Self, ServerError> {
-        Ok(Self {
-            user: Some(user.to_owned()),
-            message: message.to_string(),
+    pub fn default() -> Self {
+        Self {
+            user: Some(User { name:"luis".to_string(), uuid: String::new()}.to_owned()),
+            message: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry".to_string(),
             datetime: Utc::now().format("%Y-%m-%d %H:%M:%S").to_string(),
-            room_code: room_code.to_string(),
-        })
+            room_code: String::new(),
+        }
     }
 }
 

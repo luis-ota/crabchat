@@ -4,7 +4,10 @@ use dioxus_free_icons::{
     icons::ld_icons::{LdSendHorizontal, LdSettings},
 };
 
-use crate::infra::models::Room;
+use crate::{
+    components::cards::MessageCard,
+    infra::models::{Room, UserMessage},
+};
 
 #[component]
 pub fn Chat(room_info: Room, on_button_click: EventHandler<()>, room_info_opened: bool) -> Element {
@@ -27,9 +30,10 @@ pub fn Chat(room_info: Room, on_button_click: EventHandler<()>, room_info_opened
 
                 }
                 div {
-                    class: "h-full w-full flex-row flex justify-center items-center",
-                    "CHAT"
+                    class: "h-full w-full flex-row flex justify-center items-start",
+                    MessageCard { user_message: UserMessage::default()  }
                 }
+
                 div {
                     class: "w-full px-3 gap-3 flex flex-row justify-between items-center m-4",
                         input {
