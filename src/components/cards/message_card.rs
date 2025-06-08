@@ -5,7 +5,7 @@ use crate::infra::models::{User, UserMessage};
 
 #[component]
 pub fn MessageCard(user_message: ReadOnlySignal<UserMessage>) -> Element {
-    let user_message: &UserMessage = &*user_message.read();
+    let user_message: &UserMessage = &user_message.read();
     let user: &User = user_message.user.as_ref().unwrap();
     let from = "self";
 
@@ -36,7 +36,7 @@ pub fn MessageCard(user_message: ReadOnlySignal<UserMessage>) -> Element {
     }
 }
 
-fn display_datetime(dt: &String) -> Option<String> {
+fn display_datetime(dt: &str) -> Option<String> {
     let naive = NaiveDateTime::parse_from_str(dt, "%Y-%m-%d %H:%M:%S").ok()?;
     let datetime = DateTime::<Utc>::from_naive_utc_and_offset(naive, Utc);
     let now = Utc::now();

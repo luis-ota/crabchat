@@ -28,7 +28,7 @@ pub fn Home() -> Element {
                 Nav {
                         class: format_args!(
                             "nav-transition {}",
-                            if hide_left() || user.read().name == ""{
+                            if hide_left() || !user.read().name.is_empty(){
                                 "collapsed translate-x-100"
                             } else {
                                 "w-[20%]"
@@ -40,7 +40,7 @@ pub fn Home() -> Element {
 
                     }
 
-                if user.read().name != ""{
+                if !user.read().name.is_empty(){
                     Chat {
                     room_info: current_room,
                     on_button_click: move |_| hide_right.toggle(),

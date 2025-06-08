@@ -4,10 +4,7 @@ use dioxus_free_icons::{
     icons::ld_icons::{LdSendHorizontal, LdSettings},
 };
 
-use crate::{
-    components::cards::MessageCard,
-    infra::models::{Room, UserMessage},
-};
+use crate::{components::cards::MessageCard, infra::models::Room};
 
 #[component]
 pub fn Chat(

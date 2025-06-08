@@ -36,7 +36,7 @@ pub fn Header(on_button_click: EventHandler<()>, left_sidebar_opened: bool) -> E
                 }
             }else{span{}}
             div { class: "mx-4 wired-shadow wired-text text-2xl", "crabchat" }
-            if *user.read() != User::default(){
+            if !user.read().name.is_empty(){
                 button{
                     onclick: move |_| {
                         user.set(User::default());
