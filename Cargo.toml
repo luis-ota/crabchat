@@ -4,8 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+#dioxus
 dioxus = { version = "0.6.0", features = [] }
 dioxus-free-icons = { version = "0.9", features = ["lucide"] }
+dioxus-toast = "0.6.0"
+# others
 tokio = { version = "1", features = ["full"] }
 tungstenite = "0.26.2"
 tokio-tungstenite = "0.26.2"

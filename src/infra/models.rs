@@ -20,6 +20,11 @@ pub struct User {
     pub uuid: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+pub struct Server {
+    pub addres: String,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
 pub struct UserMessage {
     pub user: Option<User>,

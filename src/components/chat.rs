@@ -10,14 +10,18 @@ use crate::{
 };
 
 #[component]
-pub fn Chat(room_info: Room, on_button_click: EventHandler<()>, room_info_opened: bool) -> Element {
+pub fn Chat(
+    room_info: Signal<Room>,
+    on_button_click: EventHandler<()>,
+    room_info_opened: bool,
+) -> Element {
     rsx! {
             div {
                 class:"w-full h-full flex flex-col items-center justify-center align-center",
                 div {
                     class: "p-4 w-full flex items-center justify-between align-center",
                     span{}
-                    span{"{room_info.info.base_info.name}"}
+                    span{"{room_info.read().info.base_info.name}"}
                     button {
                         onclick: move |_| on_button_click.call(()),
                             Icon {
@@ -31,7 +35,10 @@ pub fn Chat(room_info: Room, on_button_click: EventHandler<()>, room_info_opened
                 }
                 div {
                     class: "h-full w-full flex-row flex justify-center items-start",
-                    MessageCard { user_message: UserMessage::default()  }
+                    for user_message in room_info.read().messages.to_owned() {
+                        MessageCard { user_message }
+                    }
+
                 }
 
                 div {

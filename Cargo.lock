@@ -661,6 +661,7 @@ dependencies = [
  "chrono",
  "dioxus",
  "dioxus-free-icons",
+ "dioxus-toast",
  "futures-util",
  "serde",
  "serde_json",
@@ -1200,6 +1201,17 @@ dependencies = [
  "rustc-hash",
  "tracing",
  "warnings",
+]
+
+[[package]]
+name = "dioxus-toast"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1c424116e781a685f2e0ff3f290a509d7746688b619bb342a753063e1d81bc6a"
+dependencies = [
+ "chrono",
+ "dioxus",
+ "tokio",
 ]
 
 [[package]]

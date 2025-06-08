@@ -1,6 +1,9 @@
 use dioxus::prelude::*;
+use dioxus_toast::{ToastFrame, ToastManager};
 
 use components::Home;
+
+use crate::infra::models::{AvaliableRoom, Room, Server, User};
 
 mod components;
 mod infra;
@@ -16,6 +19,12 @@ fn main() {
 
 #[component]
 fn App() -> Element {
+    use_context_provider(|| Signal::new(User::default()));
+    use_context_provider(|| Signal::new(Server::default()));
+    use_context_provider(|| Signal::new(Room::default()));
+    use_context_provider(|| Signal::new(Vec::<AvaliableRoom>::new()));
+
+    let toast = use_context_provider(|| Signal::new(ToastManager::default()));
     rsx! {
 
         document::Link { rel: "icon", href: FAVICON }
@@ -23,6 +32,7 @@ fn App() -> Element {
         document::Link { rel: "stylesheet", href: TAILWIND_CSS }
         document::Link { rel: "stylesheet", href: FIRACODE_FONT }
 
+        ToastFrame { manager: toast }
         Home {}
 
     }
