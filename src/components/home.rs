@@ -6,6 +6,7 @@ use crate::components::cards::RoomCard;
 use crate::infra::models::AvaliableRoom;
 use crate::infra::models::Room;
 use crate::infra::models::User;
+use crate::providers::LoggedIn;
 use dioxus::prelude::*;
 
 #[component]
@@ -14,7 +15,7 @@ pub fn Home() -> Element {
     let mut hide_right = use_signal(|| true);
     let current_room = use_context::<Signal<Room>>();
     let avaliable_rooms = use_context::<Signal<Vec<AvaliableRoom>>>();
-    let user = use_context::<Signal<User>>();
+    let is_logged_in = use_context::<Signal<LoggedIn>>();
 
     rsx! {
         div {
@@ -28,7 +29,7 @@ pub fn Home() -> Element {
                 Nav {
                         class: format_args!(
                             "nav-transition {}",
-                            if hide_left() || !user.read().name.is_empty(){
+                            if hide_left() || !is_logged_in.read().0{
                                 "collapsed translate-x-100"
                             } else {
                                 "w-[20%]"
@@ -40,12 +41,13 @@ pub fn Home() -> Element {
 
                     }
 
-                if !user.read().name.is_empty(){
+                if is_logged_in.read().0{
                     Chat {
-                    room_info: current_room,
-                    on_button_click: move |_| hide_right.toggle(),
-                    room_info_opened: hide_right()
-                }}else{
+                        room_info: current_room,
+                        on_button_click: move |_| hide_right.toggle(),
+                        room_info_opened: hide_right()
+                        }
+                }else{
                     Login{}
                 }
 

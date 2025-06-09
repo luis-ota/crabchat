@@ -1,12 +1,16 @@
 use dioxus::prelude::*;
 use dioxus_toast::{ToastInfo, ToastManager};
 
-use crate::infra::models::{Server, User};
+use crate::{
+    infra::models::{Server, User},
+    providers::LoggedIn,
+};
 
 #[component]
 pub fn Login() -> Element {
     let mut user = use_context::<Signal<User>>();
     let mut server = use_context::<Signal<Server>>();
+    let mut is_logged_in = use_context::<Signal<LoggedIn>>();
     let mut toast = use_context::<Signal<ToastManager>>();
 
     let mut u = use_signal(String::new);
@@ -75,6 +79,7 @@ pub fn Login() -> Element {
                                 server.set(Server{
                                     addres: s.read().to_string()
                                 });
+                                is_logged_in.set(LoggedIn(true));
                                 }
                         },
                         "access"

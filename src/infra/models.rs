@@ -42,6 +42,14 @@ impl UserMessage {
             room_code: String::new(),
         }
     }
+    pub fn new(user: &User, message: &String, room_code: &String) -> Self {
+        Self {
+            user: Some(User { name:"luis".to_string(), uuid: String::new()}.to_owned()),
+            message: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry".to_string(),
+            datetime: Utc::now().format("%Y-%m-%d %H:%M:%S").to_string(),
+            room_code: String::new(),
+        }
+    }
 }
 
 impl ToJson for UserMessage {}
@@ -72,6 +80,8 @@ pub struct AccessRoom {
     pub room_code: String,
     pub password: Option<String>,
 }
+
+impl ToJson for AccessRoom {}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LeaveRoom {

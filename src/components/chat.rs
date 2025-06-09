@@ -4,7 +4,11 @@ use dioxus_free_icons::{
     icons::ld_icons::{LdSendHorizontal, LdSettings},
 };
 
-use crate::{components::cards::MessageCard, infra::models::Room};
+use crate::{
+    components::cards::MessageCard,
+    infra::models::{Room, User},
+    providers::LoggedIn,
+};
 
 #[component]
 pub fn Chat(
@@ -12,8 +16,13 @@ pub fn Chat(
     on_button_click: EventHandler<()>,
     room_info_opened: bool,
 ) -> Element {
+    let is_logged_in = use_context::<Signal<LoggedIn>>();
+    let user = use_context::<Signal<User>>();
+
     rsx! {
-            div {
+            if !room_info.read().info.base_info.code.is_empty(){
+                div {
+
                 class:"w-full h-full flex flex-col items-center justify-center align-center",
                 div {
                     class: "p-4 w-full flex items-center justify-between align-center",
@@ -63,6 +72,18 @@ pub fn Chat(
                         }
                     }
                 }
+                }
+            }else{
+                div {
+                   class:"
+                   w-full h-full
+                   flex flex-col justify-center items-center
+                   mx-4 my-8 wired-shadow wired-text text-2xl
+                   ",
+                    span{"welcome {user.read().name}!"}
+                    span{"please select or search a room code on the sidebar"}
+                }
             }
+
     }
 }
