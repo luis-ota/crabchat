@@ -1,4 +1,6 @@
-use crate::infra::models::{AccessRoom, CreateRoom, DeleteRoom, ServerMessage, User, UserMessage};
+use crate::infra::models::{
+    AccessRoom, AvaliableRoom, CreateRoom, DeleteRoom, ServerMessage, ToJson, User, UserMessage,
+};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -18,18 +20,22 @@ pub enum ServerError {
     InvalidUuid(String),
     #[error("you need to pass the User struct fist")]
     Unauthorized,
+    #[error("the reciver was not initialized")]
+    MissingReceiver,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type", content = "data")]
-pub enum IncomingMessage {
+pub enum JsonMessage {
     User(User),
     CreateRoom(CreateRoom),
     DeleteRoom(DeleteRoom),
     AcessRoom(AccessRoom),
     LeaveRoom(LeaveRoom),
     UserMessage(UserMessage),
+    AvailableRooms(Vec<AvaliableRoom>),
 }
+impl ToJson for JsonMessage {}
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type", content = "data")]

@@ -5,7 +5,6 @@ use crate::components::Nav;
 use crate::components::cards::RoomCard;
 use crate::infra::models::AvaliableRoom;
 use crate::infra::models::Room;
-use crate::infra::models::User;
 use crate::providers::LoggedIn;
 use dioxus::prelude::*;
 

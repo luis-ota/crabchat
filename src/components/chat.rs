@@ -16,7 +16,7 @@ pub fn Chat(
     on_button_click: EventHandler<()>,
     room_info_opened: bool,
 ) -> Element {
-    let is_logged_in = use_context::<Signal<LoggedIn>>();
+    let _is_logged_in = use_context::<Signal<LoggedIn>>();
     let user = use_context::<Signal<User>>();
 
     rsx! {

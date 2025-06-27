@@ -19,6 +19,7 @@ pub struct User {
     pub name: String,
     pub uuid: String,
 }
+impl ToJson for User {}
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct Server {

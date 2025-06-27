@@ -1,14 +1,17 @@
-use crate::infra::enums::{IncomingMessage, ServerError};
-use crate::infra::models::{AccessRoom, BaseRoomInfo, CreateRoom, Room, ToJson, User, UserMessage};
+use crate::infra::enums::{JsonMessage, ServerError};
+use crate::infra::models::{
+    AccessRoom, AvaliableRoom, BaseRoomInfo, CreateRoom, ToJson, User, UserMessage,
+};
 
 use anyhow::Result;
+use dioxus::prelude::*;
 use futures_util::stream::{SplitSink, SplitStream};
 use futures_util::{SinkExt, StreamExt, TryFutureExt};
 use tokio::net::TcpStream;
 use tokio_tungstenite::WebSocketStream;
-use tokio_tungstenite::{MaybeTlsStream, connect_async, tungstenite::protocol::Message};
-use tracing::error;
-use tungstenite::Utf8Bytes;
+use tokio_tungstenite::{MaybeTlsStream, connect_async};
+use tracing::{error, warn};
+use tungstenite::{Message, Utf8Bytes};
 
 use url::Url;
 
@@ -20,8 +23,8 @@ pub struct Client {
 }
 
 impl Client {
-    pub async fn new(server: &str, port: i32, user: &User) -> Result<Self, ServerError> {
-        let uri = Url::parse(&format!("ws://{server}:{port}"));
+    pub async fn new(server: &str, user: &User) -> Result<Self, ServerError> {
+        let uri = Url::parse(&format!("ws://{server}"));
         let (ws_stream, _) = connect_async(uri.unwrap().to_string())
             .await
             .map_err(ServerError::WebSocket)?;
@@ -34,23 +37,39 @@ impl Client {
         })
     }
 
-    async fn recive(&mut self) -> Result<(), ServerError> {
-        let mut ws_reciver = self.ws_stream_reciver.as_mut().unwrap();
+    pub async fn start_recive_task(
+        &mut self,
+        mut avaliable_rooms: Signal<Vec<AvaliableRoom>>,
+    ) -> Result<Task, ServerError> {
+        let mut ws_reciver = self
+            .ws_stream_reciver
+            .take()
+            .ok_or(ServerError::MissingReceiver)?;
 
-        while let Some(msg) = ws_reciver.next().await {
-            if let Ok(Message::Text(text)) = msg {
-                match serde_json::from_str::<IncomingMessage>(&text) {
-                    Ok(incoming_message) => {
-                        println!("{:#?}", incoming_message);
-                    }
-                    Err(e) => {
-                        error!("erro ao desserializar a mensagem: {}. texto: {}", e, text);
+        let handle = spawn(async move {
+            while let Some(msg) = ws_reciver.next().await {
+                if let Ok(Message::Text(text)) = msg {
+                    match serde_json::from_str::<JsonMessage>(&text) {
+                        Ok(incoming_message) => match incoming_message {
+                            JsonMessage::AvailableRooms(a_rooms) => {
+                                avaliable_rooms.set(a_rooms);
+                            }
+                            JsonMessage::UserMessage(_room_data) => {
+                                todo!()
+                            }
+                            _ => {
+                                warn!("Received unexpected message from server {:#?}", text);
+                            }
+                        },
+                        Err(e) => {
+                            error!("erro ao desserializar a mensagem: {}. texto: {}", e, text);
+                        }
                     }
                 }
             }
-        }
+        });
 
-        Ok(())
+        Ok(handle)
     }
 
     async fn send_message(
@@ -77,7 +96,13 @@ impl Client {
         Ok(())
     }
 
-    async fn acess_room(
+    pub async fn login(&mut self, user: &User) -> Result<(), ServerError> {
+        let user_json = JsonMessage::User(user.clone());
+        self.send_method(&user_json.to_json()?).await?;
+        Ok(())
+    }
+
+    async fn access_room(
         &mut self,
         room_code: String,
         password: Option<String>,
@@ -107,4 +132,13 @@ impl Client {
 
         Ok(())
     }
+
+    // async fn leave_room(&mut self) -> Result<(), ServerError> {
+    //     let leave_room = LeaveRoom {
+    //         room_code: self.room_code.clone(),
+    //     };
+    //     self.send_method(&leave_room.to_json()?).await?;
+
+    //     Ok(())
+    // }
 }

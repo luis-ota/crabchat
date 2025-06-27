@@ -13,7 +13,7 @@ use crate::{
 pub fn Header(on_button_click: EventHandler<()>, left_sidebar_opened: bool) -> Element {
     let mut user = use_context::<Signal<User>>();
     let mut server = use_context::<Signal<Server>>();
-    let mut is_logged_in = use_context::<Signal<LoggedIn>>();
+    let is_logged_in = use_context::<Signal<LoggedIn>>();
 
     rsx! {
         div {
