@@ -34,6 +34,7 @@ pub enum JsonMessage {
     LeaveRoom(LeaveRoom),
     UserMessage(UserMessage),
     AvailableRooms(Vec<AvaliableRoom>),
+    ServerMessage(ServerMessage),
 }
 impl ToJson for JsonMessage {}
 
@@ -55,6 +56,15 @@ pub enum ResType {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(tag = "type", content = "data")]
 pub enum Action {
+    Connect,
+    Request,
+    CreateRoom,
+    DeleteRoom,
+    AcessRoom,
+    LeaveRoom,
+}
+
+pub enum Current {
     Connect,
     Request,
     CreateRoom,

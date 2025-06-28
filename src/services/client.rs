@@ -1,7 +1,8 @@
-use crate::infra::enums::{JsonMessage, ServerError};
+use crate::infra::enums::{JsonMessage, ResType, ServerError};
 use crate::infra::models::{
-    AccessRoom, AvaliableRoom, BaseRoomInfo, CreateRoom, ToJson, User, UserMessage,
+    AccessRoom, AvaliableRoom, BaseRoomInfo, CreateRoom, Room, ToJson, User, UserMessage,
 };
+use dioxus_toast::{ToastInfo, ToastManager};
 
 use anyhow::Result;
 use dioxus::prelude::*;
@@ -10,7 +11,7 @@ use futures_util::{SinkExt, StreamExt, TryFutureExt};
 use tokio::net::TcpStream;
 use tokio_tungstenite::WebSocketStream;
 use tokio_tungstenite::{MaybeTlsStream, connect_async};
-use tracing::{error, warn};
+use tracing::{error, info, warn};
 use tungstenite::{Message, Utf8Bytes};
 
 use url::Url;
@@ -40,6 +41,8 @@ impl Client {
     pub async fn start_recive_task(
         &mut self,
         mut avaliable_rooms: Signal<Vec<AvaliableRoom>>,
+        mut current_room: Signal<Room>,
+        mut toast: Signal<ToastManager>,
     ) -> Result<Task, ServerError> {
         let mut ws_reciver = self
             .ws_stream_reciver
@@ -49,13 +52,28 @@ impl Client {
         let handle = spawn(async move {
             while let Some(msg) = ws_reciver.next().await {
                 if let Ok(Message::Text(text)) = msg {
+                    info!("recived {:#?} from server", &text);
+
                     match serde_json::from_str::<JsonMessage>(&text) {
                         Ok(incoming_message) => match incoming_message {
                             JsonMessage::AvailableRooms(a_rooms) => {
                                 avaliable_rooms.set(a_rooms);
                             }
-                            JsonMessage::UserMessage(_room_data) => {
-                                todo!()
+                            JsonMessage::UserMessage(u_message) => {
+                                current_room.write().messages.push(u_message);
+                            }
+                            JsonMessage::ServerMessage(s_message) => {
+                                toast.write().popup(ToastInfo {
+                                    heading: Some(format!(
+                                        "{:#?} {:#?}",
+                                        s_message.for_action, s_message.res_type
+                                    )),
+                                    context: s_message.message,
+                                    allow_toast_close: true,
+                                    position: dioxus_toast::Position::TopRight,
+                                    icon: None,
+                                    hide_after: Some(7),
+                                });
                             }
                             _ => {
                                 warn!("Received unexpected message from server {:#?}", text);
@@ -86,13 +104,15 @@ impl Client {
         Ok(())
     }
 
-    async fn send_method(&mut self, json: &String) -> Result<(), ServerError> {
+    pub async fn send_method(&mut self, json: &String) -> Result<(), ServerError> {
         let ws_sender = self.ws_stream_sender.as_mut().unwrap();
 
         ws_sender
             .send(Message::Text(Utf8Bytes::from(json)))
             .await
             .map_err(ServerError::WebSocket)?;
+
+        info!("{:#?} was sent to the server", json);
         Ok(())
     }
 
@@ -102,7 +122,7 @@ impl Client {
         Ok(())
     }
 
-    async fn access_room(
+    pub async fn access_room(
         &mut self,
         room_code: String,
         password: Option<String>,
@@ -111,7 +131,9 @@ impl Client {
             room_code: room_code.to_string(),
             password,
         };
-        self.send_method(&access_room.to_json()?).await?;
+        // info!("{:#?}", access_room);
+        self.send_method(&JsonMessage::AcessRoom(access_room).to_json()?)
+            .await?;
 
         Ok(())
     }

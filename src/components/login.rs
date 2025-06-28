@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 use dioxus_toast::{ToastInfo, ToastManager};
 
 use crate::{
-    infra::models::{AvaliableRoom, Server, User},
+    infra::models::{AvaliableRoom, Room, Server, User},
     providers::LoggedIn,
     services::Client,
 };
@@ -15,6 +15,7 @@ pub fn Login() -> Element {
     let mut toast = use_context::<Signal<ToastManager>>();
     let client = use_context::<Signal<Client>>();
     let avaliable_rooms = use_context::<Signal<Vec<AvaliableRoom>>>();
+    let current_room = use_context::<Signal<Room>>();
 
     let mut u = use_signal(String::new);
     let mut s = use_signal(String::new);
@@ -87,11 +88,12 @@ pub fn Login() -> Element {
                                 let mut client_signal = client.clone();
                                 let mut is_logged_in_signal = is_logged_in.clone();
                                 let avaliable_rooms = avaliable_rooms.clone();
+                                let current_room = current_room.clone();
 
                                 spawn(async move {
                                     match Client::new(&server_addr, &user_data).await {
                                         Ok(mut c) => {
-                                            let _ = c.start_recive_task(avaliable_rooms).await;
+                                            let _ = c.start_recive_task(avaliable_rooms, current_room, toast).await;
                                             let _ = c.login(&user_data).await;
 
                                             client_signal.set(c);
