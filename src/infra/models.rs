@@ -21,6 +21,13 @@ pub struct User {
 }
 impl ToJson for User {}
 
+impl User {
+    pub fn set(&mut self, user: &User) {
+        self.name = user.name.clone();
+        self.uuid = user.uuid.clone();
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct Server {
     pub addres: String,
@@ -97,7 +104,7 @@ pub struct Room {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct AvaliableRoom {
+pub struct AvailableRoom {
     pub info: CreateRoom,
     pub users_count: u64,
     pub has_password: bool,

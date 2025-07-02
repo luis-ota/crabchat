@@ -1,11 +1,12 @@
-use crate::infra::enums::{JsonMessage, ResType, ServerError};
+use crate::infra::enums::{Action, JsonMessage, ResType, ServerError};
 use crate::infra::models::{
-    AccessRoom, AvaliableRoom, BaseRoomInfo, CreateRoom, Room, ToJson, User, UserMessage,
+    AccessRoom, AvailableRoom, BaseRoomInfo, CreateRoom, Room, ServerMessage, ToJson, User,
+    UserMessage,
 };
-use dioxus_toast::{ToastInfo, ToastManager};
-
+use crate::providers::LoggedIn;
 use anyhow::Result;
 use dioxus::prelude::*;
+use dioxus_toast::{ToastInfo, ToastManager};
 use futures_util::stream::{SplitSink, SplitStream};
 use futures_util::{SinkExt, StreamExt, TryFutureExt};
 use tokio::net::TcpStream;
@@ -13,8 +14,15 @@ use tokio_tungstenite::WebSocketStream;
 use tokio_tungstenite::{MaybeTlsStream, connect_async};
 use tracing::{error, info, warn};
 use tungstenite::{Message, Utf8Bytes};
-
 use url::Url;
+
+static USER: GlobalSignal<User> = Signal::global(User::default);
+static SERVER: GlobalSignal<String> = Signal::global(String::new);
+static IS_LOGGED_IN: GlobalSignal<LoggedIn> = Signal::global(|| LoggedIn(false));
+static TOAST: GlobalSignal<ToastManager> = Signal::global(ToastManager::default);
+static CLIENT: GlobalSignal<Client> = Signal::global(Client::default);
+static AVAILABLE_ROOMS: GlobalSignal<Vec<AvailableRoom>> = Signal::global(Vec::new);
+static CURRENT_ROOM: GlobalSignal<Room> = Signal::global(Room::default);
 
 #[derive(Default, Debug)]
 pub struct Client {
@@ -38,43 +46,51 @@ impl Client {
         })
     }
 
-    pub async fn start_recive_task(
-        &mut self,
-        mut avaliable_rooms: Signal<Vec<AvaliableRoom>>,
-        mut current_room: Signal<Room>,
-        mut toast: Signal<ToastManager>,
-    ) -> Result<Task, ServerError> {
+    pub fn set(&mut self, client: &mut Client) {
+        self.user = client.user.clone();
+        self.ws_stream_reciver = client.ws_stream_reciver.take();
+        self.ws_stream_sender = client.ws_stream_sender.take();
+    }
+
+    pub fn start_recive_task(&mut self) -> Result<(), ServerError> {
         let mut ws_reciver = self
             .ws_stream_reciver
             .take()
             .ok_or(ServerError::MissingReceiver)?;
 
-        let handle = spawn(async move {
+        // info!("trying to start task");
+
+        spawn_forever(async move {
+            // info!("reciver task spawned");
             while let Some(msg) = ws_reciver.next().await {
                 if let Ok(Message::Text(text)) = msg {
-                    info!("recived {:#?} from server", &text);
+                    // info!("recived {:#?} from server", &text);
 
                     match serde_json::from_str::<JsonMessage>(&text) {
                         Ok(incoming_message) => match incoming_message {
                             JsonMessage::AvailableRooms(a_rooms) => {
-                                avaliable_rooms.set(a_rooms);
+                                let mut rooms = AVAILABLE_ROOMS.write();
+                                *rooms = a_rooms;
                             }
                             JsonMessage::UserMessage(u_message) => {
-                                current_room.write().messages.push(u_message);
+                                CURRENT_ROOM.write().messages.push(u_message);
                             }
-                            JsonMessage::ServerMessage(s_message) => {
-                                toast.write().popup(ToastInfo {
-                                    heading: Some(format!(
-                                        "{:#?} {:#?}",
-                                        s_message.for_action, s_message.res_type
-                                    )),
-                                    context: s_message.message,
-                                    allow_toast_close: true,
-                                    position: dioxus_toast::Position::TopRight,
-                                    icon: None,
-                                    hide_after: Some(7),
-                                });
-                            }
+                            JsonMessage::ServerMessage(s_message) => match s_message.res_type {
+                                ResType::Success => {}
+                                _ => {
+                                    TOAST.write().popup(ToastInfo {
+                                        heading: Some(format!(
+                                            "{:#?} {:#?}",
+                                            s_message.for_action, s_message.res_type
+                                        )),
+                                        context: s_message.message,
+                                        allow_toast_close: true,
+                                        position: dioxus_toast::Position::TopRight,
+                                        icon: None,
+                                        hide_after: Some(7),
+                                    });
+                                }
+                            },
                             _ => {
                                 warn!("Received unexpected message from server {:#?}", text);
                             }
@@ -87,7 +103,7 @@ impl Client {
             }
         });
 
-        Ok(handle)
+        Ok(())
     }
 
     async fn send_message(
@@ -112,7 +128,7 @@ impl Client {
             .await
             .map_err(ServerError::WebSocket)?;
 
-        info!("{:#?} was sent to the server", json);
+        // info!("{:#?} was sent to the server", json);
         Ok(())
     }
 
@@ -132,7 +148,7 @@ impl Client {
             password,
         };
         // info!("{:#?}", access_room);
-        self.send_method(&JsonMessage::AcessRoom(access_room).to_json()?)
+        self.send_method(&JsonMessage::AccessRoom(access_room).to_json()?)
             .await?;
 
         Ok(())

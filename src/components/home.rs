@@ -5,7 +5,7 @@ use crate::components::Nav;
 use crate::components::cards::RoomCard;
 use crate::components::nav::ActionProps;
 use crate::components::nav::SearchProps;
-use crate::infra::models::AvaliableRoom;
+use crate::infra::models::AvailableRoom;
 use crate::infra::models::Room;
 use crate::providers::LoggedIn;
 use crate::services::Client;
@@ -17,7 +17,7 @@ pub fn Home() -> Element {
     let mut hide_left = use_signal(|| false);
     let mut hide_right = use_signal(|| true);
     let current_room = use_context::<Signal<Room>>();
-    let avaliable_rooms = use_context::<Signal<Vec<AvaliableRoom>>>();
+    let avaliable_rooms = use_context::<Signal<Vec<AvailableRoom>>>();
     let is_logged_in = use_context::<Signal<LoggedIn>>();
     let client = use_context::<Signal<Client>>();
 

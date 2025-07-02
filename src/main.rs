@@ -1,10 +1,8 @@
 use dioxus::prelude::*;
 use dioxus_toast::{ToastFrame, ToastManager};
 
-use components::Home;
-
 use crate::{
-    infra::models::{AvaliableRoom, Room, Server, User},
+    infra::models::{AvailableRoom, Room, Server, User},
     providers::LoggedIn,
     services::Client,
 };
@@ -19,29 +17,55 @@ const FIRACODE_FONT: &str = "https://fonts.googleapis.com/css2?family=Fira+Code&
 const GLOBALS_CSS: Asset = asset!("/assets/styling/globals.css");
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
 
-fn main() {
-    dioxus::launch(App);
+#[derive(Clone)]
+pub struct AppContext {
+    pub user: Signal<User>,
+    pub server: Signal<Server>,
+    pub is_logged_in: Signal<LoggedIn>,
+    pub toast: Signal<ToastManager>,
+    pub client: Signal<Client>,
+    pub available_rooms: Signal<Vec<AvailableRoom>>,
+    pub current_room: Signal<Room>,
+}
+
+impl AppContext {
+    pub fn new() -> Self {
+        Self {
+            user: Signal::new(User::default()),
+            server: Signal::new(Server::default()),
+            is_logged_in: Signal::new(LoggedIn(false)),
+            toast: Signal::new(ToastManager::default()),
+            client: Signal::new(Client::default()),
+            available_rooms: Signal::new(Vec::new()),
+            current_room: Signal::new(Room::default()),
+        }
+    }
 }
 
 #[component]
 fn App() -> Element {
-    use_context_provider(|| Signal::new(User::default()));
-    use_context_provider(|| Signal::new(LoggedIn(false)));
-    use_context_provider(|| Signal::new(Server::default()));
-    use_context_provider(|| Signal::new(Room::default()));
-    use_context_provider(|| Signal::new(Vec::<AvaliableRoom>::new()));
-    use_context_provider(|| Signal::new(Client::default()));
+    let app_context = AppContext::new();
 
-    let toast = use_context_provider(|| Signal::new(ToastManager::default()));
+    use_context_provider(|| app_context.user);
+    use_context_provider(|| app_context.server);
+    use_context_provider(|| app_context.is_logged_in);
+    use_context_provider(|| app_context.toast);
+    use_context_provider(|| app_context.client);
+    use_context_provider(|| app_context.available_rooms);
+    use_context_provider(|| app_context.current_room);
+
     rsx! {
-
         document::Link { rel: "icon", href: FAVICON }
         document::Link { rel: "stylesheet", href: GLOBALS_CSS }
         document::Link { rel: "stylesheet", href: TAILWIND_CSS }
         document::Link { rel: "stylesheet", href: FIRACODE_FONT }
 
-        ToastFrame { manager: toast }
-        Home {}
+        ToastFrame { manager: app_context.toast }
 
+        components::Home {}
     }
+}
+
+fn main() {
+    dioxus::launch(App);
 }

@@ -1,8 +1,9 @@
 use crate::infra::models::{
-    AccessRoom, AvaliableRoom, CreateRoom, DeleteRoom, ServerMessage, ToJson, User, UserMessage,
+    AccessRoom, AvailableRoom, CreateRoom, DeleteRoom, ServerMessage, ToJson, User, UserMessage,
 };
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
+use url::ParseError;
 
 use super::models::LeaveRoom;
 
@@ -10,18 +11,27 @@ use super::models::LeaveRoom;
 pub enum ServerError {
     #[error("serialization error: {0}")]
     Serialization(#[from] serde_json::Error),
+
     #[error("websocket error: {0}")]
     WebSocket(#[from] tokio_tungstenite::tungstenite::Error),
+
     #[error("room not found: {0}")]
     RoomNotFound(String),
+
     #[error("user not found: {0}")]
     UserNotFound(String),
+
     #[error("invalid uuid: {0}")]
     InvalidUuid(String),
+
     #[error("you need to pass the User struct fist")]
     Unauthorized,
+
     #[error("the reciver was not initialized")]
     MissingReceiver,
+
+    #[error("the sender was not initialized")]
+    MissingSender,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -30,10 +40,10 @@ pub enum JsonMessage {
     User(User),
     CreateRoom(CreateRoom),
     DeleteRoom(DeleteRoom),
-    AcessRoom(AccessRoom),
+    AccessRoom(AccessRoom),
     LeaveRoom(LeaveRoom),
     UserMessage(UserMessage),
-    AvailableRooms(Vec<AvaliableRoom>),
+    AvailableRooms(Vec<AvailableRoom>),
     ServerMessage(ServerMessage),
 }
 impl ToJson for JsonMessage {}
@@ -45,7 +55,7 @@ pub enum BroadCastMessage {
     ServerMessage(ServerMessage),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "type", content = "data")]
 pub enum ResType {
     Success,
@@ -53,7 +63,7 @@ pub enum ResType {
     InvalidRequest,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "type", content = "data")]
 pub enum Action {
     Connect,

@@ -1,9 +1,9 @@
 use dioxus::prelude::*;
 
-use crate::infra::models::AvaliableRoom;
+use crate::infra::models::AvailableRoom;
 
 #[component]
-pub fn RoomCard(info: AvaliableRoom) -> Element {
+pub fn RoomCard(info: AvailableRoom) -> Element {
     rsx! {
         div {
             class: "
