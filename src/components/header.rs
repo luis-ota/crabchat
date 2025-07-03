@@ -5,20 +5,18 @@ use dioxus_free_icons::{
 };
 
 use crate::{
+    AppContext,
     infra::models::{Server, User},
-    providers::LoggedIn,
 };
 
 #[component]
 pub fn Header(on_button_click: EventHandler<()>, left_sidebar_opened: bool) -> Element {
-    let mut user = use_context::<Signal<User>>();
-    let mut server = use_context::<Signal<Server>>();
-    let is_logged_in = use_context::<Signal<LoggedIn>>();
+    let mut ctx = use_context::<AppContext>();
 
     rsx! {
         div {
             class: "w-full bg-[#22262b] p-4 flex items-center justify-between align-center",
-            if is_logged_in.read().0{
+            if ctx.is_logged_in.read().0{
 
                 button {
                     onclick: move |_| on_button_click.call(()),
@@ -40,11 +38,12 @@ pub fn Header(on_button_click: EventHandler<()>, left_sidebar_opened: bool) -> E
                 }
             }else{span{}}
             div { class: "mx-4 wired-shadow wired-text text-2xl", "crabchat" }
-            if is_logged_in.read().0{
+            if ctx.is_logged_in.read().0{
                 button{
                     onclick: move |_| {
-                        user.set(User::default());
-                        server.set(Server::default());
+                        ctx.user.set(User::default());
+                        ctx.server.set(Server::default());
+                        ctx.is_logged_in.write().set(false);
                     },
 
                     Icon {

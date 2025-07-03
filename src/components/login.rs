@@ -1,24 +1,13 @@
 use dioxus::prelude::*;
-use dioxus_toast::{ToastInfo, ToastManager};
+use dioxus_toast::ToastInfo;
 
-use crate::{
-    infra::models::{AvailableRoom, Room, Server, User},
-    providers::LoggedIn,
-    services::Client,
-};
-
-static USER: GlobalSignal<User> = Signal::global(User::default);
-static SERVER: GlobalSignal<String> = Signal::global(String::new);
-static IS_LOGGED_IN: GlobalSignal<LoggedIn> = Signal::global(|| LoggedIn(false));
-static TOAST: GlobalSignal<ToastManager> = Signal::global(ToastManager::default);
-static CLIENT: GlobalSignal<Client> = Signal::global(Client::default);
-static AVAILABLE_ROOMS: GlobalSignal<Vec<AvailableRoom>> = Signal::global(Vec::new);
-static CURRENT_ROOM: GlobalSignal<Room> = Signal::global(Room::default);
+use crate::{AppContext, infra::models::User, services::Client};
 
 #[component]
 pub fn Login() -> Element {
     let mut u = use_signal(String::new);
     let mut s = use_signal(String::new);
+    let mut ctx = use_context::<AppContext>();
 
     rsx! {
         div {
@@ -62,7 +51,7 @@ pub fn Login() -> Element {
                     class: "bg-[#22262b] p-[10.5px] rounded w-full",
                     onclick: move |_| {
                         if u.read().is_empty() || s.read().is_empty() {
-                            let _ = TOAST.write().popup(
+                            let _ = ctx.toast.write().popup(
                                 ToastInfo {
                                     heading: Some("Login Error".into()),
                                     context: "Please fill both username and server".into(),
@@ -73,26 +62,29 @@ pub fn Login() -> Element {
                                 }
                             );
                         } else {
-                            USER.write().set(&User {
+                            ctx.user.write().set(&User {
                                 name: u.read().to_string(),
                                 uuid: String::new(),
                             });
 
                             let server_addr = s.read().to_string();
-                            let user_data = USER.read().clone();
+                            let user_data = ctx.user.read().clone();
+                            let mut available_rooms = ctx.available_rooms.clone();
+                            let mut current_room = ctx.current_room.clone();
+                            let mut toast = ctx.toast.clone();
 
                             spawn(async move {
                                 match Client::new(&server_addr, &user_data).await {
                                     Ok(mut c) => {
-                                        let _ = c.start_recive_task();
+                                        let _ = c.start_recive_task(available_rooms, current_room, toast);
                                         let _ = c.login(&user_data).await;
 
-                                        CLIENT.write().set(&mut c);
-                                        IS_LOGGED_IN.write().set(
-                                            true);
+                                        ctx.client.write().set(c);
+                                        ctx.is_logged_in.write().set(true);
+
                                     }
                                     Err(err) => {
-                                        let _ = TOAST.write().popup(
+                                        let _ = ctx.toast.write().popup(
                                             ToastInfo {
                                                 heading: Some("Connection Error".into()),
                                                 context: format!("Erro ao conectar: {:?}", err),

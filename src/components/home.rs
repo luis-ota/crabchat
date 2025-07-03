@@ -1,3 +1,4 @@
+use crate::AppContext;
 use crate::components::Chat;
 use crate::components::Header;
 use crate::components::Login;
@@ -5,10 +6,6 @@ use crate::components::Nav;
 use crate::components::cards::RoomCard;
 use crate::components::nav::ActionProps;
 use crate::components::nav::SearchProps;
-use crate::infra::models::AvailableRoom;
-use crate::infra::models::Room;
-use crate::providers::LoggedIn;
-use crate::services::Client;
 use dioxus::prelude::*;
 use tracing::info;
 
@@ -16,10 +13,7 @@ use tracing::info;
 pub fn Home() -> Element {
     let mut hide_left = use_signal(|| false);
     let mut hide_right = use_signal(|| true);
-    let current_room = use_context::<Signal<Room>>();
-    let avaliable_rooms = use_context::<Signal<Vec<AvailableRoom>>>();
-    let is_logged_in = use_context::<Signal<LoggedIn>>();
-    let client = use_context::<Signal<Client>>();
+    let mut ctx = use_context::<AppContext>();
 
     rsx! {
         div {
@@ -33,7 +27,6 @@ pub fn Home() -> Element {
                 Nav {
                     search: SearchProps{
                         on_search: EventHandler::new(move |query: String| {
-                            let mut client = client.clone();
                             spawn(async move {
                                 tracing::info!("{:#?}", query);
 
@@ -41,12 +34,12 @@ pub fn Home() -> Element {
 
                                 match parts.as_slice() {
                                     [code] => {
-                                        if let Err(e) = client.write().access_room(code.to_string(), None).await {
+                                        if let Err(e) = ctx.client.write().access_room(code.to_string(), None).await {
                                             tracing::error!("Failed to access room: {}", e);
                                         }
                                     },
                                     [code, pass] => {
-                                        if let Err(e) = client.write().access_room(code.to_string(), Some(pass.to_string())).await {
+                                        if let Err(e) = ctx.client.write().access_room(code.to_string(), Some(pass.to_string())).await {
                                             tracing::error!("Failed to access room: {}", e);
                                         }
                                     },
@@ -66,21 +59,20 @@ pub fn Home() -> Element {
                     },
                     class: format_args!(
                             "nav-transition {}",
-                            if hide_left() || !is_logged_in.read().0{
+                            if hide_left() || !ctx.is_logged_in.read().0{
                                 "collapsed translate-x-100"
                             } else {
                                 "w-[20%]"
                             }
                         ),
-                    for room in avaliable_rooms.read().iter() {
+                    for room in ctx.available_rooms.read().iter() {
                                 RoomCard { info: room.clone() }
                             }
 
                     }
 
-                if is_logged_in.read().0{
+                if ctx.is_logged_in.read().0{
                     Chat {
-                        room_info: current_room,
                         on_button_click: move |_| hide_right.toggle(),
                         room_info_opened: hide_right()
                         }

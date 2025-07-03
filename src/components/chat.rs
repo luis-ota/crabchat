@@ -3,31 +3,28 @@ use dioxus_free_icons::{
     Icon,
     icons::ld_icons::{LdSendHorizontal, LdSettings},
 };
+use dioxus_toast::ToastManager;
 
 use crate::{
+    AppContext,
     components::cards::MessageCard,
-    infra::models::{Room, User},
+    infra::models::{AvailableRoom, Room, User},
     providers::LoggedIn,
+    services::Client,
 };
 
 #[component]
-pub fn Chat(
-    room_info: Signal<Room>,
-    on_button_click: EventHandler<()>,
-    room_info_opened: bool,
-) -> Element {
-    let _is_logged_in = use_context::<Signal<LoggedIn>>();
-    let user = use_context::<Signal<User>>();
-
+pub fn Chat(on_button_click: EventHandler<()>, room_info_opened: bool) -> Element {
+    let mut ctx = use_context::<AppContext>();
     rsx! {
-            if !room_info.read().info.base_info.code.is_empty(){
+            if !ctx.current_room.read().info.base_info.code.is_empty(){
                 div {
 
                 class:"w-full h-full flex flex-col items-center justify-center align-center",
                 div {
                     class: "p-4 w-full flex items-center justify-between align-center",
                     span{}
-                    span{"{room_info.read().info.base_info.name}"}
+                    span{"{ctx.current_room.read().info.base_info.name}"}
                     button {
                         onclick: move |_| on_button_click.call(()),
                             Icon {
@@ -41,7 +38,7 @@ pub fn Chat(
                 }
                 div {
                     class: "h-full w-full flex-row flex justify-center items-start",
-                    for user_message in room_info.read().messages.to_owned() {
+                    for user_message in ctx.current_room.read().messages.to_owned() {
                         MessageCard { user_message }
                     }
 
@@ -80,7 +77,7 @@ pub fn Chat(
                    flex flex-col justify-center items-center
                    mx-4 my-8 wired-shadow wired-text text-2xl
                    ",
-                    span{"welcome {user.read().name}!"}
+                    span{"welcome {ctx.user.read().name}!"}
                     span{"please select or search a room code on the sidebar"}
                 }
             }

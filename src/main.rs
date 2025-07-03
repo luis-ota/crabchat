@@ -17,7 +17,7 @@ const FIRACODE_FONT: &str = "https://fonts.googleapis.com/css2?family=Fira+Code&
 const GLOBALS_CSS: Asset = asset!("/assets/styling/globals.css");
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AppContext {
     pub user: Signal<User>,
     pub server: Signal<Server>,
@@ -46,13 +46,7 @@ impl AppContext {
 fn App() -> Element {
     let app_context = AppContext::new();
 
-    use_context_provider(|| app_context.user);
-    use_context_provider(|| app_context.server);
-    use_context_provider(|| app_context.is_logged_in);
-    use_context_provider(|| app_context.toast);
-    use_context_provider(|| app_context.client);
-    use_context_provider(|| app_context.available_rooms);
-    use_context_provider(|| app_context.current_room);
+    use_context_provider(|| app_context.clone());
 
     rsx! {
         document::Link { rel: "icon", href: FAVICON }
